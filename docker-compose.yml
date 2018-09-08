@@ -1,0 +1,33 @@
+version: "3.7"
+services:
+  mysql_db:
+    image: mysql:latest
+    environment: 
+      MYSQL_DATABASE: 'tutorial_db'
+      MYSQL_USER: 'tutorial_db_user'
+      MYSQL_PASSWORD: 'tutorial_db_password'
+      MYSQL_ROOT_PASSWORD: 'tutorial_db_password'
+    ports: 
+      - 3306:3306
+    networks: 
+      - tutorial-network  
+  backend:
+    image: tutorial/tutorial
+    depends_on: 
+      - mysql_db  
+    networks: 
+      - tutorial-network
+    ports: 
+      - 8080:8080
+    environment: 
+      SERVER_PORT: 8080
+      DATABASE_HOST: mysql_db
+      DATABASE_PORT: 3306
+      DATABASE_NAME: tutorial_db
+      DATABASE_USER: tutorial_db_user
+      DATABASE_PASSWORD: tutorial_db_password
+
+networks:
+  tutorial-network:
+    driver: bridge      
+   
