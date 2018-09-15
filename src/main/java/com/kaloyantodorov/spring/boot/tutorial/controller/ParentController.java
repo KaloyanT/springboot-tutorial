@@ -1,6 +1,10 @@
 package com.kaloyantodorov.spring.boot.tutorial.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kaloyantodorov.spring.boot.tutorial.domain.model.Parent;
+import com.kaloyantodorov.spring.boot.tutorial.service.ExampleServiceSecondImpl;
+import com.kaloyantodorov.spring.boot.tutorial.service.IExampleService;
 import com.kaloyantodorov.spring.boot.tutorial.service.ParentService;
 
 import java.util.NoSuchElementException;
@@ -8,6 +12,7 @@ import java.util.NoSuchElementException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +26,21 @@ public class ParentController {
 
     private ParentService parentService;
 
-    public ParentController(ParentService parentService) {
+    // @Autowired won't work here, because we have 2 implementations of our interface/Service
+    // and Spring Boot cannot automatically pick an implementation to create the bean
+    private IExampleService exampleService;
+
+    public ParentController(ParentService parentService, ExampleServiceSecondImpl exampleServiceSecond) {
         this.parentService = parentService;
+        this.exampleService = exampleServiceSecond;
+    }
+
+    @GetMapping("/service")
+    public ResponseEntity<?> getService() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode response = mapper.createObjectNode();
+        response.put("serviceName", this.exampleService.getClassName());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
